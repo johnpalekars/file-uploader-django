@@ -32,32 +32,21 @@ class CustomUser(AbstractUser):
 
 
 class Files(models.Model):
-    username = models.CharField(max_length=256)
     fileName = models.CharField(max_length=256)
     fileLocation = models.FileField(
         max_length=256, upload_to='files/', null=True, verbose_name="")
+    fileSize = models.CharField(max_length=256)
     modified = models.DateField(auto_now=True)
+    userID = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.fileName
 
     class meta:
-        db_table = "app_user"
+        db_table = "app_files"
 
 
-class Friend(models.Model):
-    name = models.CharField(max_length=256)
 
-    def __str__(self):
-        return self.name
-
-
-class Abhi(models.Model):
-    username = models.CharField(max_length=256)
-    friend = models.ForeignKey('Friend', on_delete=models.DO_NOTHING)
-
-    def __str__(self):
-        return self.username
 
 
 

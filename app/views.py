@@ -26,25 +26,45 @@ def upload(request):
 
     if request.method == 'POST':
         a = {}
-        user_name = request.POST.get('username')
+        userID = request.POST.get('id')
+        print(userID)
+        ID = CustomUser.objects.get(id=userID)
+        print(ID.username)
         for filename, file in request.FILES.items():
+            size = request.POST.get(filename)
             a[request.FILES[filename].name] = (request.FILES[filename].name)
             data = Files.objects.create(
-                username=user_name, fileName=request.FILES[filename].name, fileLocation=request.FILES[filename])
+                fileName=request.FILES[filename].name, fileLocation=request.FILES[filename],fileSize =size, userID=ID )
             data.save()
-        return JsonResponse(a, safe=False)
+        return JsonResponse({"success" : a }, safe=False)
         
 
 @csrf_exempt
-@api_view(["GET"])
+@api_view(["POST"])
 def download(request):
 
 
-    if request.method == 'GET':
+    if request.method == 'POST':
 
-        data = Files.objects.all()
+        userID = request.data
+        print(userID)
+        data = Files.objects.filter(userID=userID)
+        print(data)
         serializer = serializers.DownloadSerializer(data, many=True, context={'request': request})
         return JsonResponse({"success": serializer.data}, safe=False)
+
+
+@csrf_exempt
+@api_view(["POST"])
+def get_ID(request):
+    
+    if request.method == 'POST':
+
+        user_name = request.data['username']
+        print(user_name)
+        ID = CustomUser.objects.get(username=user_name).id
+        
+        return JsonResponse({"ID": ID}, safe=False)
 
 
 

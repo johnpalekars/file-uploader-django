@@ -10,11 +10,13 @@ class DownloadSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Files
-        fields = ('username', 'fileName', 'fileLocation', 'modified')
+        fields = ('fileName', 'fileLocation','fileSize', 'modified')
 
 
 class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CustomUser
-        fields = ['id','username' 'email']
+        fields = ['id', 'username' 'email']
+        
+
