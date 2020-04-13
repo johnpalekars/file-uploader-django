@@ -17,6 +17,31 @@ from rest_framework.status import (
 
 # Create your views here.
 
+
+@csrf_exempt
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def create_user(request):
+    """
+    List all code snippets, or create a new snippet.
+    """
+    if request.method == 'POST':
+        print(request.data)
+        first_name = request.data['firstName']
+        last_name = request.data['lastName']
+        email = request.data['email']
+        username = request.data['username']
+        password = request.data['password']
+        
+        data = CustomUser.objects.create_user(first_name, last_name,
+                               email, username, password)
+        serializer = serializers.UserSerializer(data)
+            
+
+        return JsonResponse({"success": serializer.data}, safe=False)
+        
+
+
 @csrf_exempt
 @api_view(["POST"])
 def upload(request):
@@ -34,15 +59,14 @@ def upload(request):
             size = request.POST.get(filename)
             a[request.FILES[filename].name] = (request.FILES[filename].name)
             data = Files.objects.create(
-                fileName=request.FILES[filename].name, fileLocation=request.FILES[filename],fileSize =size, userID=ID )
+                fileName=request.FILES[filename].name, fileLocation=request.FILES[filename], fileSize=size, userID=ID)
             data.save()
-        return JsonResponse({"success" : a }, safe=False)
-        
+        return JsonResponse({"success": a}, safe=False)
+
 
 @csrf_exempt
 @api_view(["POST"])
 def download(request):
-
 
     if request.method == 'POST':
 
@@ -50,23 +74,40 @@ def download(request):
         print(userID)
         data = Files.objects.filter(userID=userID)
         print(data)
-        serializer = serializers.DownloadSerializer(data, many=True, context={'request': request})
+        serializer = serializers.DownloadSerializer(
+            data, many=True, context={'request': request})
         return JsonResponse({"success": serializer.data}, safe=False)
 
 
 @csrf_exempt
 @api_view(["POST"])
 def get_ID(request):
-    
+
     if request.method == 'POST':
 
         user_name = request.data['username']
         print(user_name)
         ID = CustomUser.objects.get(username=user_name).id
-        
+
         return JsonResponse({"ID": ID}, safe=False)
 
 
+@csrf_exempt
+@api_view(["POST"])
+def fileDelete(request):
+
+    if request.method == 'POST':
+
+        files = request.data
+        print(files)
+        for file in files:
+            Files.objects.get(id=file).delete()
+
+        return JsonResponse({"success": files}, safe=False)
 
 
+# try:
+#   person = People.objects.get(Name='Fred')
+# except (People.DoesNotExist):
+#   # Do something else...
 

@@ -10,7 +10,7 @@ class DownloadSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Files
-        fields = ('fileName', 'fileLocation','fileSize', 'modified')
+        fields = ('id','fileName', 'fileLocation','fileSize', 'modified')
 
 
 class UserSerializer(serializers.ModelSerializer):
