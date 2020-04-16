@@ -11,6 +11,7 @@ urlpatterns = [
     path('download/', views.download, name="download"),
     path('fileDelete/', views.fileDelete, name="fileDelete"),
     path('createUser/', views.create_user, name="createUser"),
+    path('AdminUser/', views.AdminUser, name="Users"),
     path('getID/', views.get_ID, name="getID"),
     url(r'^auth/', include('djoser.urls')),
     url(r'^auth/', include('djoser.urls.authtoken')),

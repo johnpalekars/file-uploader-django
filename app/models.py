@@ -2,6 +2,8 @@ from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.contrib.auth.models import AbstractUser
 from django.utils.translation import ugettext_lazy as _
+from django.db.models.signals import post_delete
+from django.dispatch import receiver
 from app.managers import CustomUserManager
 # Create your models here.
 
@@ -44,6 +46,11 @@ class Files(models.Model):
 
     class meta:
         db_table = "app_files"
+
+
+@receiver(post_delete, sender=Files)
+def submission_delete(sender, instance, **kwargs):
+    instance.fileLocation.delete(False)
 
 
 

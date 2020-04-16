@@ -1,6 +1,8 @@
+from django.contrib.auth.decorators import user_passes_test
 from app import serializers
 from app.models import Files, CustomUser
 from app import serializers
+from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
 from django.http import JsonResponse
 from django.contrib.auth import authenticate
@@ -8,6 +10,7 @@ from django.views.decorators.csrf import csrf_exempt
 from rest_framework.authtoken.models import Token
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
+import json
 from rest_framework.permissions import AllowAny
 from rest_framework.status import (
     HTTP_400_BAD_REQUEST,
@@ -32,14 +35,12 @@ def create_user(request):
         email = request.data['email']
         username = request.data['username']
         password = request.data['password']
-        
+
         data = CustomUser.objects.create_user(first_name, last_name,
-                               email, username, password)
+                                              email, username, password)
         serializer = serializers.UserSerializer(data)
-            
 
         return JsonResponse({"success": serializer.data}, safe=False)
-        
 
 
 @csrf_exempt
@@ -84,12 +85,12 @@ def download(request):
 def get_ID(request):
 
     if request.method == 'POST':
-
+        
         user_name = request.data['username']
         print(user_name)
-        ID = CustomUser.objects.get(username=user_name).id
+        user = CustomUser.objects.get(username=user_name)  
 
-        return JsonResponse({"ID": ID}, safe=False)
+        return JsonResponse({"ID": user.id,"isAdmin": user.is_superuser}, safe=False)
 
 
 @csrf_exempt
@@ -110,4 +111,26 @@ def fileDelete(request):
 #   person = People.objects.get(Name='Fred')
 # except (People.DoesNotExist):
 #   # Do something else...
+class IsSuperUser(IsAdminUser):
+    def has_permission(self, request, view):
+        return bool(request.user and request.user.is_superuser)
 
+
+
+
+
+
+@csrf_exempt
+@api_view(["GET"])
+def AdminUser(request):
+
+    if request.method == "GET":
+        is_staff = CustomUser.objects.get(email=request.user)
+        if (is_staff.is_superuser):
+                
+            userData= CustomUser.objects.all()            
+            serializer = serializers.UserSerializer(userData, many=True)
+            print(serializer.data)
+            return JsonResponse({"success": serializer.data}, safe=False)
+        else:
+            return JsonResponse({"error": "Invalid request"},safe=False)
